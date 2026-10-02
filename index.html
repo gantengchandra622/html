@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Full Animated Programmer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0b10;
+            --bg-card: rgba(18, 20, 32, 0.75);
+            --accent-green: #00ff66;
+            --accent-cyan: #00f0ff;
+            --accent-purple: #b000ff;
+            --text-main: #f0f2f5;
+            --text-muted: #8b9bb4;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Canvas Background untuk Partikel / Matrix Animasi */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Kontainer Utama */
+        .portfolio-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Kartu Glassmorphism dengan Animasi Masuk */
+        .animated-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            border-radius: 24px;
+            padding: 35px;
+            margin-bottom: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s, box-shadow 0.4s;
+        }
+
+        .animated-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 30px 60px rgba(0, 240, 255, 0.15), inset 0 1px 0 rgba(0, 240, 255, 0.3);
+        }
+
+        /* Delays untuk kartu berurutan */
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.3s; }
+        .delay-3 { animation-delay: 0.5s; }
+        .delay-4 { animation-delay: 0.7s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header / Hero Section */
+        .hero-header {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .avatar-box {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Fira Code', monospace;
+            font-size: 28px;
+            font-weight: bold;
+            color: #000;
+            position: relative;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+            animation: pulseGlow 3s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); transform: scale(1); }
+            100% { box-shadow: 0 0 35px rgba(176, 0, 255, 0.7); transform: scale(1.05); }
+        }
+
+        .hero-info h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, #fff, var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Efek Mengetik (Typing Text) */
+        .typing-container {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: var(--accent-green);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: var(--accent-green);
+            margin-left: 4px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Section Headings */
+        .section-title {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-cyan);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(0, 240, 255, 0.2);
+        }
+
+        p.bio-text {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--text-muted);
+        }
+
+        /* Skills Badges Animasi */
+        .skills-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 5px;
+        }
+
+        .skill-badge {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: #fff;
+            transition: all 0.3s ease;
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-badge::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 240, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .skill-badge:hover::before {
+            left: 100%;
+        }
+
+        .skill-badge:hover {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 240, 255, 0.25);
+        }
+
+        /* Proyek Interaktif */
+        .project-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 20px;
+            border-radius: 14px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .project-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .project-item:hover {
+            background: rgba(0, 240, 255, 0.04);
+            border-color: rgba(0, 240, 255, 0.3);
+            transform: translateX(5px);
+        }
+
+        .project-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .project-tech {
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
+            color: var(--accent-purple);
+            background: rgba(176, 0, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .project-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        /* Tombol Kontak Animasi */
+        .contact-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #000;
+            font-weight: 800;
+            font-size: 15px;
+            padding: 16px;
+            border-radius: 16px;
+            text-decoration: none;
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(176, 0, 255, 0.5);
+            filter: brightness(1.1);
+        }
+
+        footer {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 20px;
+            font-family: 'Fira Code', monospace;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas Background Animasi Partikel Kode -->
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="portfolio-wrapper">
+        
+        <!-- Hero / Header Section -->
+        <div class="animated-card delay-1">
+            <div class="hero-header">
+                <div class="avatar-box">&lt;/&gt;</div>
+                <div class="hero-info">
+                    <h1>chandra maulana CodeCraft</h1>
+                    <div class="typing-container">
+                        <span id="typingText"></span><span class="cursor"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Me Section -->
+        <div class="animated-card delay-2">
+            <div class="section-title">// 01. pelajaran saya</div>
+            <p class="bio-text">
+                Seorang Software Engineer & Full-Stack Developer yang berfokus pada pembuatan animasi web tingkat lanjut, pengalaman interaktif yang mulus, serta performa aplikasi yang optimal menggunakan kode bersih dan terstruktur.
+            </p>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="animated-card delay-3">
+            <div class="section-title">// 02. code code dalam aplikasi</div>
+            <div class="skills-grid">
+                <div class="skill-badge">JavaScript (ES6+)</div>
+                <div class="skill-badge">React & Next.js</div>
+                <div class="skill-badge">CSS Animations / Canvas</div>
+                <div class="skill-badge">Node.js & Express</div>
+                <div class="skill-badge">UI/UX Micro-Interactions</div>
+                <div class="skill-badge">TailwindCSS</div>
+            </div>
+        </div>
+
+        <!-- Projects Section -->
+        <div class="animated-card delay-4">
+            <div class="section-title">// 03. social media</div>
+            
+            <div class="project-item">
+                <div class="project-title">
+                    <span>INSTAGRAM</span>
+                    <span class="project-tech">https://www.instagram.com/unchndr44/</span>
+                </div>
+                <div class="project-desc">https://www.instagram.com/unchndr44/</div>
+            </div>
+
+            <div class="project-item">
+                <div class="project-title">
+                    <span>Nexus Cloud IDE</span>
+                    <span class="project-tech">React / WebSockets</span>
+                </div>
+                <div class="project-desc">Lingkungan pengembangan berbasis web dengan sistem kolaborasi kode multi-user secara langsung.</div>
+            </div>
+        </div>
+
+        <!-- Tombol Kontak -->
+        <a href="mailto:chandra maulana@codecraft.dev" class="contact-btn">INITIALIZE CONTACT // HIRE ME</a>
+
+        <footer>
+            <p>&copy; 2026 chandra maulana CodeCraft. All Systems Operational.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // Efek Animasi Mengetik Teks (Typing Effect)
+        const texts = [
+            "programer pplg 3", 
+            "saya chandra maulana", 
+            "programer terjago", 
+            "saya ingin menjadi orang sukses pertama"
+        ];
+        let textIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        const typingSpeed = 100;
+        const deletingSpeed = 50;
+        const pauseTime = 2000;
+        const typingElement = document.getElementById("typingText");
+
+        function typeWriter() {
+            const currentText = texts[textIndex];
+            
+            if (isDeleting) {
+                typingElement.textContent = currentText.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                typingElement.textContent = currentText.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let speed = isDeleting ? deletingSpeed : typingSpeed;
+
+            if (!isDeleting && charIndex === currentText.length) {
+                speed = pauseTime;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                textIndex = (textIndex + 1) % texts.length;
+                speed = 500;
+            }
+
+            setTimeout(typeWriter, speed);
+        }
+
+        setTimeout(typeWriter, 500);
+
+        // Animasi Background Partikel Interaktif di Canvas
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const particles = [];
+        const particleCount = Math.floor(window.innerWidth / 15);
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.8,
+                vy: (Math.random() - 0.5) * 0.8,
+                radius: Math.random() * 2 + 1,
+                alpha: Math.random() * 0.5 + 0.2
+            });
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
+            ctx.lineWidth = 1;
+
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0) p.x = width;
+                if (p.x > width) p.x = 0;
+                if (p.y < 0) p.y = height;
+                if (p.y > height) p.y = 0;
+
+                ctx.fillStyle = `rgba(0, 240, 255, ${p.alpha})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Hubungkan garis antar partikel terdekat
+                for (let j = i + 1; j < particles.length; j++) {
+                    let p2 = particles[j];
+                    let dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        animateParticles();
+    </script>
+
+</body>
+</html>
